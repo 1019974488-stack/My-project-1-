@@ -25,6 +25,11 @@ public class SlotMachineController : MonoBehaviour
     private int currentIndex = 0;
     private int direction = 1;
 
+    public GameObject result1;
+    public GameObject result2;
+    public GameObject result3;
+
+    public GameObject reStartButton;
     public int CurrentIndex => currentIndex;
 
     //------------------------------------------------
@@ -56,6 +61,8 @@ public class SlotMachineController : MonoBehaviour
         StopAllCoroutines();
 
         RefreshSlots();
+
+        // 持续闪光闪烁
 
         StartCoroutine(ResultRoutine());
     }
@@ -106,6 +113,8 @@ public class SlotMachineController : MonoBehaviour
     {
         yield return new WaitForSeconds(0.15f);
 
+        // currentIndex 随机结果
+
         SpriteRenderer slot = cupSlots[currentIndex];
 
         for (int i = 0; i < flashCount; i++)
@@ -125,6 +134,9 @@ public class SlotMachineController : MonoBehaviour
         {
             gameManager.FinishRound(currentIndex);
         }
+
+        // qidong
+        StartCoroutine(ShowResultOutCome(currentIndex));
     }
 
     //------------------------------------------------
@@ -140,5 +152,21 @@ public class SlotMachineController : MonoBehaviour
         direction = 1;
 
         RefreshSlots();
+    }
+
+    public void ShowUpRestartButton()
+    {
+        // canvas group shows up by alpha 0-1
+    }
+
+    public IEnumerator ShowResultOutCome(int index)
+    {
+        // result in which case to show up.?
+        // 
+
+
+        yield break;
+        //ShowUpRestartButton();?
+
     }
 }

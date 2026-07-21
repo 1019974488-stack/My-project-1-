@@ -150,6 +150,7 @@ public class LeftButtonController : MonoBehaviour,
         targetProgress = 0;
         currentProgress = 0;
         hasEnteredSlotMachine = false;
+        gameManager.StartNextRound();
 
         transform.position = p0.position;
     }
