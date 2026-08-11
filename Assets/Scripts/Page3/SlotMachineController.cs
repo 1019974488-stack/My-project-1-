@@ -41,8 +41,9 @@ public class SlotMachineController : MonoBehaviour
     public GameObject result2;
     public GameObject result3;
 
-
-
+    public GameObject resultContainer1;
+    public GameObject resultContainer2;
+    public GameObject resultContainer3;
 
     [Header("Restart / Next Button")]
     public GameObject reStartButton;
@@ -50,9 +51,6 @@ public class SlotMachineController : MonoBehaviour
     public TMP_Text buttonText;
 
     public Button button;
-
-
-
 
     private bool isSpinning = false;
 
@@ -65,22 +63,12 @@ public class SlotMachineController : MonoBehaviour
     public int CurrentIndex => currentIndex;
 
 
-
-
-
-
-
     void Start()
     {
-
-        HideResults();
-
-
         if (reStartButton != null)
         {
             reStartButton.SetActive(false);
         }
-
     }
 
 
@@ -125,13 +113,6 @@ public class SlotMachineController : MonoBehaviour
 
     }
 
-
-
-
-
-
-
-
     //------------------------------------------------
     // 停止
     //------------------------------------------------
@@ -142,33 +123,17 @@ public class SlotMachineController : MonoBehaviour
         if (!isSpinning)
             return;
 
-
-
         isSpinning = false;
-
-
 
         StopAllCoroutines();
 
-
-
         RefreshSlots();
-
-
 
         StartCoroutine(
             ResultRoutine()
         );
 
     }
-
-
-
-
-
-
-
-
 
     IEnumerator SpinRoutine()
     {
@@ -290,7 +255,7 @@ public class SlotMachineController : MonoBehaviour
 
 
         Debug.Log(
-            "最终结果：" + currentIndex
+           "当前是第：" + gameManager.currentRound +"轮。"+ "最终结果：" + currentIndex
         );
 
 
@@ -303,12 +268,10 @@ public class SlotMachineController : MonoBehaviour
             );
 
         }
-
-
-
+        // show result
 
         yield return StartCoroutine(
-            ShowResultOutCome(currentIndex)
+            ShowResultOutCome(gameManager.currentRound, currentIndex)
         );
 
 
@@ -326,68 +289,54 @@ public class SlotMachineController : MonoBehaviour
     // 显示结果
     //------------------------------------------------
 
-    public IEnumerator ShowResultOutCome(int index)
+    public IEnumerator ShowResultOutCome(int round ,int index)
     {
-
-
-        // 不再HideResults
-        // 保留前三轮结果
-
-
-
         yield return new WaitForSeconds(0.3f);
 
-
+        GameObject result = result1;
 
         switch (index)
         {
 
             case 0:
-
-                if (result1 != null)
-                    result1.SetActive(true);
-
+                result = result1;
+                //if (result1 != null)
+                //    result1.SetActive(true);
                 break;
-
-
-
             case 1:
-
-                if (result2 != null)
-                    result2.SetActive(true);
-
+                result = result2;
+                //if (result2 != null)
+                //    result2.SetActive(true);
                 break;
-
-
-
             case 2:
-
-                if (result3 != null)
-                    result3.SetActive(true);
-
+                result = result3;
+                //if (result3 != null)
+                //    result3.SetActive(true);
                 break;
-
         }
 
 
+        GameObject temp = Instantiate(result);
 
-
+        if (round == 1)
+        {
+            temp.transform.parent = resultContainer1.transform;
+            temp.transform.localPosition = Vector3.zero;
+        }
+        if (round == 2)
+        {
+            temp.transform.parent = resultContainer2.transform;
+            temp.transform.localPosition = Vector3.zero;
+        }
+        if (round == 3)
+        {
+            temp.transform.parent = resultContainer3.transform;
+            temp.transform.localPosition = Vector3.zero;
+        }
         yield return new WaitForSeconds(0.8f);
 
-
-
         ShowUpRestartButton();
-
-
     }
-
-
-
-
-
-
-
-
 
     void HideResults()
     {
@@ -404,15 +353,6 @@ public class SlotMachineController : MonoBehaviour
             result3.SetActive(false);
 
     }
-
-
-
-
-
-
-
-
-
     //------------------------------------------------
     // Restart / Next按钮
     //------------------------------------------------
@@ -423,56 +363,35 @@ public class SlotMachineController : MonoBehaviour
         if (reStartButton == null)
             return;
 
-
-
         reStartButton.SetActive(true);
-
-
 
         // 第三轮
         if (gameManager.currentRound >= gameManager.maxRound)
         {
-
-
-            buttonText.text = "Next";
-
-
+            buttonText.text = "Next Page";
 
             button.onClick.RemoveAllListeners();
-
-
 
             button.onClick.AddListener(
                 gameManager.GoNextPage
             );
 
-
-
             Debug.Log(
                 "第三轮完成，显示Next"
             );
-
-
 
             // 自动初始化
             StartCoroutine(
                 AutoResetFinalRound()
             );
-
-
         }
-
         else
         {
 
 
             buttonText.text = "Restart";
 
-
-
             button.onClick.RemoveAllListeners();
-
-
 
             button.onClick.AddListener(
                 gameManager.StartNextRound

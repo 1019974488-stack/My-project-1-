@@ -39,18 +39,12 @@ public class GameManager : MonoBehaviour
 
 
 
-    public float[] roundSpeeds =
+    private float[] roundSpeeds =
     {
         0.18f,
         0.12f,
         0.08f
     };
-
-
-
-
-
-
 
     //------------------------------------------------
     // 进入老虎机
@@ -75,11 +69,7 @@ public class GameManager : MonoBehaviour
         slotMachine.selectorSpeed =
             roundSpeeds[currentRound - 1];
 
-
-
         slotMachine.StartSpin();
-
-
 
         Debug.Log(
             "开始第 " + currentRound + " 轮"
@@ -101,8 +91,6 @@ public class GameManager : MonoBehaviour
 
     public void FinishRound(int result)
     {
-
-
         currentState =
             GameState.Result;
 
@@ -110,36 +98,21 @@ public class GameManager : MonoBehaviour
     currentRound,
     result
 );
-
-
         Debug.Log(
             "第 " + currentRound +
             " 轮完成，结果：" + result
         );
 
-
-
-
-
         // 第三轮结束
-
-        if (currentRound >= maxRound)
-        {
-
-            currentState =
-                GameState.Finished;
-
-
-            StartCoroutine(
-                FinalReset()
-            );
-
-
-            return;
-
-        }
-
-
+        //if (currentRound >= maxRound)
+        //{
+        //    currentState =
+        //        GameState.Finished;
+        //    StartCoroutine(
+        //        FinalReset()
+        //    );
+        //    return;
+        //}
     }
 
 
@@ -156,8 +129,6 @@ public class GameManager : MonoBehaviour
 
     public void StartNextRound()
     {
-
-
         if (currentRound >= maxRound)
         {
 
@@ -170,85 +141,38 @@ public class GameManager : MonoBehaviour
 
         }
 
-
-
-
-
         currentRound++;
-
-
 
         currentState =
             GameState.Dragging;
 
-
-
         slotMachine.ResetSlotMachine();
-
-
 
         Debug.Log(
             "进入第 " + currentRound + " 轮"
         );
-
-
     }
-
-
-
-
-
-
-
-
-
-
-
-
     //------------------------------------------------
     // 第三轮结束初始化
     //------------------------------------------------
 
     IEnumerator FinalReset()
     {
-
-
         yield return new WaitForSeconds(1f);
-
-
-
-
-
         // 重置老虎机
-
         if (slotMachine != null)
         {
 
             slotMachine.FinalResetSlotMachine();
 
         }
-
-
-
-
-
-
-
         // 重置杯子
-
         if (cupController != null)
         {
 
             cupController.ResetCup();
 
         }
-
-
-
-
-
-
-
 
         // 重置左按钮
 
@@ -259,13 +183,6 @@ public class GameManager : MonoBehaviour
 
         }
 
-
-
-
-
-
-
-
         // 第三轮结束隐藏Restart按钮
 
         if (leftButton != null)
@@ -274,12 +191,6 @@ public class GameManager : MonoBehaviour
             leftButton.gameObject.SetActive(false);
 
         }
-
-
-
-
-
-
         Debug.Log(
             "三轮结束，等待进入下一页"
         );
@@ -287,29 +198,15 @@ public class GameManager : MonoBehaviour
 
     }
 
-
-
-
-
-
-
-
-
-
-
-
     //------------------------------------------------
     // Next按钮（以后制作后再使用）
     //------------------------------------------------
 
     public void GoNextPage()
     {
-
         Debug.Log(
             "进入下一页"
         );
-
-
     }
 
 
