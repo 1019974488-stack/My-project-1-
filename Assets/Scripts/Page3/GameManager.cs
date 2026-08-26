@@ -1,11 +1,8 @@
 using System.Collections;
 using UnityEngine;
 
-
 public class GameManager : MonoBehaviour
 {
-
-
     public enum GameState
     {
         Dragging,
@@ -15,13 +12,13 @@ public class GameManager : MonoBehaviour
     }
 
 
+    [Header("Current State")]
 
     public GameState currentState =
         GameState.Dragging;
 
 
-
-    [Header("References")]
+    [Header("Page 3 References")]
 
     public SlotMachineController slotMachine;
 
@@ -29,6 +26,20 @@ public class GameManager : MonoBehaviour
 
     public LeftButtonController leftButton;
 
+
+    [Header("Page Switch")]
+
+    // Page 3 的根对象
+    public GameObject page3;
+
+    // Page 4 的根对象
+    public GameObject page4;
+
+    // Page 3 和 Page 4 共用的结果托盘
+    public GameObject resultContainer;
+
+    // Page 4 的拖拽管理器
+    public PicnicManager picnicManager;
 
 
     [Header("Round")]
@@ -38,7 +49,7 @@ public class GameManager : MonoBehaviour
     public int maxRound = 3;
 
 
-
+    // 三轮老虎机的扫描速度
     private float[] roundSpeeds =
     {
         0.18f,
@@ -46,43 +57,50 @@ public class GameManager : MonoBehaviour
         0.08f
     };
 
+
     //------------------------------------------------
     // 进入老虎机
     //------------------------------------------------
 
     public void EnterSlotMachine()
     {
-
         if (currentRound > maxRound)
         {
-            Debug.Log("已经完成全部轮次");
+            Debug.Log(
+                "已经完成全部轮次"
+            );
+
             return;
         }
-
 
 
         currentState =
             GameState.SlotMachine;
 
 
+        if (slotMachine == null)
+        {
+            Debug.LogError(
+                "GameManager 没有连接 SlotMachineController"
+            );
+
+            return;
+        }
+
 
         slotMachine.selectorSpeed =
             roundSpeeds[currentRound - 1];
 
+
         slotMachine.StartSpin();
 
+
         Debug.Log(
-            "开始第 " + currentRound + " 轮"
+            "开始第 "
+            + currentRound
+            + " 轮"
         );
-
     }
-
-
-
-
-
-
-
 
 
     //------------------------------------------------
@@ -94,121 +112,175 @@ public class GameManager : MonoBehaviour
         currentState =
             GameState.Result;
 
-        CakeData.Instance.SaveCake(
-    currentRound,
-    result
-);
-        Debug.Log(
-            "第 " + currentRound +
-            " 轮完成，结果：" + result
-        );
 
-        // 第三轮结束
-        //if (currentRound >= maxRound)
-        //{
-        //    currentState =
-        //        GameState.Finished;
-        //    StartCoroutine(
-        //        FinalReset()
-        //    );
-        //    return;
-        //}
+        if (CakeData.Instance != null)
+        {
+            CakeData.Instance.SaveCake(
+                currentRound,
+                result
+            );
+        }
+        else
+        {
+            Debug.LogError(
+                "没有找到 CakeData，无法保存蛋糕结果"
+            );
+        }
+
+
+        Debug.Log(
+            "第 "
+            + currentRound
+            + " 轮完成，结果："
+            + result
+        );
     }
 
 
-
-
-
-
-
-
-
     //------------------------------------------------
-    // Restart进入下一轮
+    // 进入下一轮
     //------------------------------------------------
 
     public void StartNextRound()
     {
         if (currentRound >= maxRound)
         {
-
             Debug.Log(
                 "已经是最后一轮"
             );
 
-
             return;
-
         }
 
+
         currentRound++;
+
 
         currentState =
             GameState.Dragging;
 
-        slotMachine.ResetSlotMachine();
+
+        if (slotMachine != null)
+        {
+            slotMachine.ResetSlotMachine();
+        }
+
 
         Debug.Log(
-            "进入第 " + currentRound + " 轮"
+            "进入第 "
+            + currentRound
+            + " 轮"
         );
     }
+
+
     //------------------------------------------------
-    // 第三轮结束初始化
+    // 第三轮结束后的操作区初始化
     //------------------------------------------------
 
     IEnumerator FinalReset()
     {
         yield return new WaitForSeconds(1f);
+
+
         // 重置老虎机
         if (slotMachine != null)
         {
-
             slotMachine.FinalResetSlotMachine();
-
         }
+
+
         // 重置杯子
         if (cupController != null)
         {
-
             cupController.ResetCup();
-
         }
+
 
         // 重置左按钮
-
         if (leftButton != null)
         {
-
             leftButton.ResetButton();
-
         }
 
-        // 第三轮结束隐藏Restart按钮
 
+        // 隐藏左按钮
         if (leftButton != null)
         {
-
             leftButton.gameObject.SetActive(false);
-
         }
+
+
         Debug.Log(
             "三轮结束，等待进入下一页"
         );
-
-
     }
 
+
     //------------------------------------------------
-    // Next按钮（以后制作后再使用）
+    // 从 Page 3 进入 Page 4
     //------------------------------------------------
 
     public void GoNextPage()
     {
+        currentState =
+            GameState.Finished;
+
+
+        // 先显示 Page 4
+        if (page4 != null)
+        {
+            page4.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError(
+                "GameManager 没有连接 Page 4"
+            );
+        }
+
+
+        // 保证共用托盘和三个结果蛋糕继续显示
+        if (resultContainer != null)
+        {
+            resultContainer.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError(
+                "GameManager 没有连接 ResultContainer"
+            );
+        }
+
+
+        // 初始化三个实际结果蛋糕的拖拽功能
+        if (picnicManager != null)
+        {
+            picnicManager.PrepareExistingCakes();
+        }
+        else
+        {
+            Debug.LogError(
+                "GameManager 没有连接 PicnicManager"
+            );
+        }
+
+
+        // 最后隐藏 Page 3
+        if (page3 != null)
+        {
+            page3.SetActive(false);
+        }
+        else
+        {
+            Debug.LogError(
+                "GameManager 没有连接 Page 3"
+            );
+        }
+
+
         Debug.Log(
-            "进入下一页"
+            "进入 Page 4，蛋糕拖拽初始化完成"
         );
     }
-
-
-
 }
