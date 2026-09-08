@@ -113,6 +113,8 @@ public class PowerStruggleController : MonoBehaviour
     private Vector3 boundaryBaseLocalPosition;
 
     private float playerPulse;
+    public float cousinPulseVice;
+
     private float inputEnableTime;
     private bool referencesReady;
 
@@ -163,6 +165,12 @@ public class PowerStruggleController : MonoBehaviour
 
         playerPulse = Mathf.MoveTowards(
             playerPulse,
+            0f,
+            pulseReturnSpeed * Time.deltaTime
+        );
+
+        cousinPulseVice = Mathf.MoveTowards(
+            cousinPulseVice,
             0f,
             pulseReturnSpeed * Time.deltaTime
         );
@@ -245,10 +253,18 @@ public class PowerStruggleController : MonoBehaviour
             return;
         }
 
+        // pulse value set up
         playerPulse = Mathf.Max(
             playerPulse,
             clickPulseAmount
         );
+
+        // pulse value for cousin
+        cousinPulseVice = Mathf.Min(
+            cousinPulseVice,
+            -clickPulseAmount*1.3f
+        );
+
 
         float progress = Mathf.Clamp01(
             (float)totalClicks / counterattackTriggerClicks
@@ -365,10 +381,13 @@ public class PowerStruggleController : MonoBehaviour
     private void ApplyVisuals()
     {
         playerEnergyBall.localScale =
-            playerBaseScale * (1f + playerPulse);
+            playerBaseScale * (1f + playerPulse); // player size getting bigger
 
-        cousinEnergyBall.localScale = cousinBaseScale;
+        
+        cousinEnergyBall.localScale = cousinBaseScale * (1f + cousinPulseVice);   // cousin's size stay same
+
         boundaryLine.localPosition = boundaryBaseLocalPosition;
+
     }
 
 
